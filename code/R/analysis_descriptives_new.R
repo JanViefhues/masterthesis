@@ -16,16 +16,16 @@ after.dataset <- read.csv(file = '/Users/jan-philippviefhues/Desktop/UNI/Maastri
 before.dataset = before.dataset[complete.cases(before.dataset),]
 during.dataset = during.dataset[complete.cases(during.dataset),]
 after.dataset = after.dataset[complete.cases(after.dataset),]
-total.dataset = read.csv(file="/Users/jan-philippviefhues/Desktop/UNI/Maastricht/um/Thesis/data/datasets/cleaned_datasets/total_dataset_with_precipitation_and_dummies_hourly.csv")
+total.dataset = read.csv(file="/Users/jan-philippviefhues/Desktop/UNI/Maastricht/um/Thesis/gitRepo/masterthesis/cleaned_data/total_dataset_with_precipitation_and_dummies_hourly.csv")
 
 # ----------------------------------------------------------
 #Daily base
 
-before.dataset <- read.csv(file = '/Users/jan-philippviefhues/Desktop/UNI/Maastricht/um/Thesis/data/datasets/cleaned_datasets/dataset.before.flooding_with_precipitation_and_dummies_dailyBase.csv')
-during.dataset <- read.csv(file = '/Users/jan-philippviefhues/Desktop/UNI/Maastricht/um/Thesis/data/datasets/cleaned_datasets/dataset.during.flooding_with_precipitation_and_dummies_dailyBase.csv')
-after.dataset <- read.csv(file = '/Users/jan-philippviefhues/Desktop/UNI/Maastricht/um/Thesis/data/datasets/cleaned_datasets/dataset.after.flooding_with_precipitation_and_dummies_dailyBase.csv')
+#before.dataset <- read.csv(file = '/Users/jan-philippviefhues/Desktop/UNI/Maastricht/um/Thesis/data/datasets/cleaned_datasets/dataset.before.flooding_with_precipitation_and_dummies_dailyBase.csv')
+#during.dataset <- read.csv(file = '/Users/jan-philippviefhues/Desktop/UNI/Maastricht/um/Thesis/data/datasets/cleaned_datasets/dataset.during.flooding_with_precipitation_and_dummies_dailyBase.csv')
+#after.dataset <- read.csv(file = '/Users/jan-philippviefhues/Desktop/UNI/Maastricht/um/Thesis/data/datasets/cleaned_datasets/dataset.after.flooding_with_precipitation_and_dummies_dailyBase.csv')
 
-View(after.dataset)
+View(before.dataset)
 # ----------------------------------------------------------
 
 # Check if the correct data is there
@@ -158,7 +158,7 @@ print(leakage.ration.total)
 # ---------------- Humidity --------------------------------
 # ----------------------------------------------------------
 
-hist(before.dataset$Humidity)
+hist(before.dataset$Humidity, main='Humidity before flood', xlab='Humidity')
 hist(during.dataset$Humidity)
 hist(after.dataset$Humidity)
 
@@ -187,6 +187,7 @@ total.dataset.oneWeekEach$CO2 <- as.numeric(total.dataset.oneWeekEach$CO2)
 # Multiple histograms on the same plot
 
 # TOTAL DATASET
+dev.off()
 ggplot2.histogram(data=total.dataset, xName='Humidity',
                   groupName='periode', legendPosition="top")
 
@@ -298,28 +299,35 @@ plot(fit, 1)
 
 # Use Spearman rank-order correlation coefficient as the data is not normal
 # With RHINE WATER
-relevant.features <- c("CO2","PM25","PM10","Temperature", "Humidity", "Pressure","Precipitation","RhineWaterLevel")
+
 
 # With MINE and GROUND WATER
-relevant.features <- c("CO2","PM25","PM10","Temperature", "Humidity", "Pressure","Precipitation","ground_water_level","mine_water_level")
+relevant.features <- c("CO2","PM25","PM10","Temperature", "Humidity", "Pressure","Precipitation","RhineWaterLevel","Discharge","Stream_water_level","ground_water_level","mine_water_level")
 
-# Total Dataset
-total.dataset.correlation_matrix <- cor(total.dataset.without_date[relevant.features], y = NULL,
+rename_features <- function (dataset, features){
+  data = dataset[features]
+  colnames(data) <- c('CO2', 'PM2.5', 'PM10', 'Temperature', 'Humidity', 'Pressure', 'Precipitation', 'Rhein water level', 'Discharge', 'Stream water level', 'Ground water level', 'Mine water level') 
+  return(data)
+}
+
+total.dataset.without_date
+
+total.dataset.correlation_matrix <- cor(rename_features(total.dataset.without_date, relevant.features), y = NULL,
     method = c("spearman"))
 corrplot::corrplot(total.dataset.correlation_matrix, method = 'number') 
 
 # Before Dataset
-before.dataset.correlation_matrix <- cor(before.dataset.without_date[relevant.features], y = NULL,
+before.dataset.correlation_matrix <- cor(rename_features(before.dataset.without_date, relevant.features), y = NULL,
                                         method = c("spearman"))
 corrplot::corrplot(before.dataset.correlation_matrix, method = 'number')
 
 # During Dataset
-during.dataset.correlation_matrix <- cor(during.dataset.without_date[relevant.features], y = NULL,
+during.dataset.correlation_matrix <- cor(rename_features(during.dataset.without_date, relevant.features), y = NULL,
                                          method = c("spearman"))
 corrplot::corrplot(during.dataset.correlation_matrix, method = 'number') 
 
 # After Dataset
-after.dataset.correlation_matrix <- cor(after.dataset.without_date[relevant.features], y = NULL,
+after.dataset.correlation_matrix <- cor(rename_features(after.dataset.without_date, relevant.features), y = NULL,
                                          method = c("spearman"))
 corrplot::corrplot(after.dataset.correlation_matrix, method = 'number')                   
 
@@ -334,9 +342,9 @@ res2
 # ----------------------------------------------------------
 # -----------    Histograms for CO2   ----------------------
 
-before.dataset.hist <- hist(before.dataset$CO2)
-during.dataset.hist <- hist(during.dataset$CO2)
-after.dataset.hist <- hist(after.dataset$CO2)
+before.dataset.hist <- hist(before.dataset$CO2, main='CO2 before flood')
+during.dataset.hist <- hist(during.dataset$CO2, main='CO2 during flood')
+after.dataset.hist <- hist(after.dataset$CO2, main='CO2 after flood')
 total.dataset.hist <- hist(total.dataset$CO2)
 
 hist(before.dataset$dangerousCo2)
